@@ -41,32 +41,12 @@ class FarmBot:
         self.isPyrogram = isPyrogram
         self.tgAccount = tgAccount
 
-    async def add_tag(self):
-        if self.tgAccount is None:
-            return
-        tgMe = self.tgAccount.me if self.tgAccount.me else None
-        if tgMe is None:
-            return
-        if "🌱SEED" not in tgMe.last_name:
-            await self.tgAccount.setName(tgMe.first_name, tgMe.last_name + " 🌱SEED")
-            self.log.info(
-                f"<cyan>{self.account_name}</cyan> | <g>has been tagged with 🌱SEED !</g>"
-            )
-        else:
-            self.log.info(
-                f"<cyan>{self.account_name}</cyan> | <g>already has the tag</g>"
-            )
-
     async def run(self):
         self.display_name = self.account_name.replace("ma_", "")
         self.log.info(
-            f"<cyan>{self.account_name}</cyan> | <g>🤖 Starting Seed farming...</g>"
+            f"<cyan>{self.account_name}</cyan><g> | 🤖 Starting Seed farming...</g>"
         )
         try:
-
-            if getConfig("auto_add_tag", False):
-                self.add_tag()
-
             self.http = HttpRequest(
                 log=self.log,
                 proxy=self.proxy,
@@ -79,32 +59,54 @@ class FarmBot:
             hunt = Hunt(self.log, self.http, self.account_name)
             worm = Worm(self.log, self.http, self.account_name)
 
-            profile = base.get_profile()
-            if profile is None:
-                self.log.error(f"<r>⭕ {self.display_name} failed to get profile!</r>")
-                return None, None
-            profile = profile["data"]
-            if profile["bonus_claimed"] is False:
-                self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>🐣 Registering account...</g>"
+            if getConfig("auto_add_tag", False):
+                base.check_tag(tgAccount=self.tgAccount)
+
+            profile = base.get_profile2()
+            if profile is None or "data" not in profile:
+                self.log.error(
+                    f"<r>⭕ <c>{self.display_name}</c> failed to get profile!</r>"
                 )
+                return None
+
+            profile = profile.get("data", {})
+            if (
+                "newcomer_event" in profile
+                and profile["newcomer_event"] is True
+                or "tg_id" not in profile
+            ):
+                self.log.info(
+                    f"<cyan>{self.account_name}</cyan><g> | 🐣 Registering account...</g>"
+                )
+
+                time.sleep(0.5)
                 base.post_profile()
                 time.sleep(3)
+                profile = base.get_profile()
 
-            profile = base.get_profile()
-
-            if profile is None:
-                self.log.error(f"<r>⭕ {self.display_name} failed to get profile!</r>")
-                return None, None
+                if profile is None:
+                    self.log.error(
+                        f"<r>⭕ <c>{self.account_name}</c> failed to get profile!</r>"
+                    )
+                    return None, None
 
             balance = base.get_balance()
+            balance_rounded = round(
+                balance.get("data", 0) / 1_000_000_000,
+                3 if balance.get("data", 0) > 1_000_000_000 else 0,
+            )
+
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 📈 Balance: {balance_rounded}</g>"
+            )
+
+            progresses = task.get_progresses()
+            login_bonus = base.get_login_bonus()
+
             upgrade_levels = base.get_levels()
 
             self.log.info(
-                f"<cyan>{self.account_name}</cyan> | <g>📈 Balance: {balance.get('data', 0) / 1_000_000_000}</g>"
-            )
-            self.log.info(
-                f"<cyan>{self.account_name}</cyan> | <g>📦⛏️💧 Storage level: {upgrade_levels.get('storage-size', 1)} | Mining level: {upgrade_levels.get('mining-speed', 1)} | Holy level: {upgrade_levels.get('holy-water', 1)}</g>"
+                f"<cyan>{self.account_name}</cyan><g> | 📦 Storage level: {upgrade_levels.get('storage-size', 1)} | ⛏️ Mining level: {upgrade_levels.get('mining-speed', 1)} | 💧 Holy level: {upgrade_levels.get('holy-water', 1)}</g>"
             )
 
             wormCaught = worm.capture_worm()
@@ -112,67 +114,67 @@ class FarmBot:
 
             if claimStatus is not None:
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>⛏️ Claimed {claimStatus.get('data', {}).get('amount', 0) / 1_000_000_000} Seed 💚</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | ⛏️ Claimed {claimStatus.get('data', {}).get('amount', 0) / 1_000_000_000} Seed 💚</g>"
                 )
 
             if wormCaught:
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>🐛 Worm caught from the tree!</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 🐛 Worm caught from the tree!</g>"
                 )
 
             profile = profile["data"]
 
             if profile.get("give_first_egg", True) is False:
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>🐣 Getting first egg...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 🐣 Getting first egg...</g>"
                 )
                 egg = base.get_first_egg_and_hatch()
                 if egg is None:
                     self.log.error(
-                        f"<r>⭕ {self.display_name} failed to get first egg!</r>"
+                        f"<r>⭕ <c>{self.account_name}</c> failed to get first egg!</r>"
                     )
 
             dailyBonusResult = base.get_daily_checkin()
 
             if dailyBonusResult is not None:
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>🎯 Claimed daily bonus! Day: {dailyBonusResult.get('data', {}).get('no', 1)}</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 🎯 Claimed daily bonus! Day: {dailyBonusResult.get('data', {}).get('no', 1)}</g>"
                 )
 
             if getConfig("auto_upgrade_storage", True):
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>📦 Checking if storage upgrade is possible...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 📦 Checking if storage upgrade is possible...</g>"
                 )
                 base.upgrade("storage")
                 time.sleep(1)
             if getConfig("auto_upgrade_mining", True):
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>⛏️ Checking if mining upgrade is possible...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | ⛏️ Checking if mining upgrade is possible...</g>"
                 )
                 base.upgrade("mining")
                 time.sleep(1)
             if getConfig("auto_upgrade_holy", True):
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>💧 Checking if holy upgrade is possible...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 💧 Checking if holy upgrade is possible...</g>"
                 )
                 base.upgrade("holy")
                 time.sleep(1)
 
             if getConfig("auto_do_tasks", True):
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>📗 Starting to do tasks...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 📗 Starting to do tasks...</g>"
                 )
                 task.do_tasks()
                 task.do_holy_tasks()
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>📗 Possible Tasks completed!</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 📗 Possible Tasks completed!</g>"
                 )
 
             if getConfig("auto_do_hunt", True):
                 hunt.process_hunt()
 
         except Exception as e:
-            self.log.error(f"<r>⭕ {self.display_name} failed to login!</r>")
+            self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to login!</r>")
             self.log.error(f"<r>⭕ Error (for devs): {e}</r>")
             return None, None
         finally:

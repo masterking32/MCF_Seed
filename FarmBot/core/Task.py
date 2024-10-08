@@ -13,6 +13,27 @@ class Task:
         self.http = httpRequest
         self.account_name = account_name
 
+    def get_progresses(self):
+        try:
+            response = self.http.get(
+                url="/api/v1/tasks/progresses",
+                domain="elb",
+            )
+
+            if response is None:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get tasks!</r>"
+                )
+                return None
+
+            return response["data"]
+
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get tasks!</r>"
+            )
+            return None
+
     def do_tasks(self):
         try:
             response = self.http.get(
@@ -21,7 +42,9 @@ class Task:
             )
 
             if response is None:
-                self.log.error(f"<r>⭕ {self.account_name} failed to get tasks!</r>")
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get tasks!</r>"
+                )
                 return None
 
             for task in response["data"]:
@@ -44,12 +67,12 @@ class Task:
 
             if response is None:
                 self.log.error(
-                    f"<r>⭕ {self.account_name} failed to complete task {task_name}!</r>"
+                    f"<r>⭕ <c>{self.account_name}</c> failed to complete task {task_name}!</r>"
                 )
                 return None
 
             # self.log.info(
-            #     f"<g>📗 {self.account_name} task {task_name} started and marked as completed!</g>"
+            #     f"<g>📗 <c>{self.account_name}</c> task {task_name} started and marked as completed!</g>"
             # )
         except Exception as e:
             self.log.error(f"<r>⭕ {e} failed to complete task {task_name}!</r>")
@@ -64,12 +87,12 @@ class Task:
 
             if response is None:
                 self.log.error(
-                    f"<r>⭕ {self.account_name} failed to complete task {task_name}!</r>"
+                    f"<r>⭕ <c>{self.account_name}</c> failed to complete task {task_name}!</r>"
                 )
                 return None
 
             # self.log.info(
-            #     f"<g>📗 {self.account_name} task {task_name} started and marked as completed!</g>"
+            #     f"<g>📗 <c>{self.account_name}</c> task {task_name} started and marked as completed!</g>"
             # )
         except Exception as e:
             self.log.error(f"<r>⭕ {e} failed to complete task {task_name}!</r>")
@@ -83,7 +106,9 @@ class Task:
             )
 
             if response is None:
-                self.log.error(f"<r>⭕ {self.account_name} failed to get tasks!</r>")
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get tasks!</r>"
+                )
                 return None
 
             for task in response["data"]:

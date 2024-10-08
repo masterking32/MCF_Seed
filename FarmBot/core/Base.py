@@ -13,21 +13,77 @@ class Base:
         self.http = httpRequest
         self.account_name = account_name
 
-    def get_profile(self):
+    def check_tag(self, tgAccount):
+        if tgAccount is None:
+            return
+
+        tgMe = tgAccount.me if tgAccount.me else None
+        if tgMe is None:
+            return
+
+        if "🌱SEED" not in tgMe.last_name and "🌱SEED" not in tgMe.first_name:
+            tgAccount.setName(tgMe.first_name, tgMe.last_name + " 🌱SEED")
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🌱 Tag has been added to the last name!</g>"
+            )
+        else:
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🌱 Tag already exists!</g>"
+            )
+
+    def get_login_bonus(self):
+        try:
+            response = self.http.post(
+                url="/api/v1/login-bonuses",
+                display_errors=False,
+            )
+
+            return response if response is not None else None
+
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get login bonus!</r>"
+            )
+            return None
+
+    def get_profile2(self):
         try:
             response = self.http.get(
                 url="/api/v1/profile2",
-                domain="elb",
             )
 
             if response is None:
-                self.log.error(f"<r>⭕ {self.account_name} failed to get profile!</r>")
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get profile!</r>"
+                )
                 return None
 
             return response
 
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to get profile!</r>")
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to get profile!</r>"
+            )
+            return None
+
+    def get_profile(self):
+        try:
+            response = self.http.get(
+                url="/api/v1/profile",
+            )
+
+            if response is None:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get profile!</r>"
+                )
+                return None
+
+            return response
+
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to get profile!</r>"
+            )
             return None
 
     def post_profile(self):
@@ -38,12 +94,14 @@ class Base:
             )
             if response is None:
                 self.log.error(
-                    f"<r>⭕ {self.account_name} failed to set-up account!</r>"
+                    f"<r>⭕ <c>{self.account_name}</c> failed to set-up account!</r>"
                 )
                 return None
             return response
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to set-up account!</r>")
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to set-up account!</r>"
+            )
             return None
 
     def get_levels(self):
@@ -63,7 +121,9 @@ class Base:
             return upgrade_levels
 
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to get levels!</r>")
+            self.log.error(
+                f"<r> {self.account_name}</c> |⭕ {e} failed to get levels!</r>"
+            )
             return None
 
     def get_balance(self):
@@ -74,13 +134,17 @@ class Base:
             )
 
             if response is None:
-                self.log.error(f"<r>⭕ {self.account_name} failed to get balance!</r>")
+                self.log.error(
+                    f"<r>⭕ {self.account_name}</c> | <c>{self.account_name}</c> failed to get balance!</r>"
+                )
                 return None
 
             return response
 
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to get balance!</r>")
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to get balance!</r>"
+            )
             return None
 
     def claim(self):
@@ -92,12 +156,12 @@ class Base:
             )
 
             if response is None:
-                # self.log.error(f"<r>⭕ {self.account_name} failed to claim!</r>")
+                # self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to claim!</r>")
                 return None
 
             return response
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to claim!</r>")
+            self.log.error(f"<r>⭕ {self.account_name}</c> | {e} failed to claim!</r>")
             return None
 
     def upgrade(self, upgrade_type):
@@ -117,10 +181,14 @@ class Base:
             )
             if response is None:
                 return None
-            self.log.info(f"<g> {self.account_name} upgraded {upgrade_type} 🆙⬆️!</g>")
+            self.log.info(
+                f"<g> <c>{self.account_name}</c> upgraded {upgrade_type} 🆙⬆️!</g>"
+            )
             return response
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to upgrade {upgrade_type}!</r>")
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to upgrade {upgrade_type}!</r>"
+            )
             return None
 
     def get_daily_checkin(self):
@@ -149,7 +217,9 @@ class Base:
             return response if response is not None else None
 
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to hatch egg!</r>")
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to hatch egg!</r>"
+            )
             return None
 
     def get_first_egg_and_hatch(self):
@@ -166,5 +236,7 @@ class Base:
             return hatchResponse
 
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to get first egg!</r>")
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to get first egg!</r>"
+            )
             return None
