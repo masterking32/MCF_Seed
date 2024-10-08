@@ -10,15 +10,30 @@ class Worm:
         self.http = httpRequest
         self.account_name = account_name
 
+    def get_worm(self):
+        try:
+            response = self.http.get(
+                url="/api/v1/worms/me",
+            )
+            if response is None:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get worm!</r>"
+                )
+                return None
+            return response
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get worm!</r>"
+            )
+
     def is_worm_available(self):
         try:
             response = self.http.get(
                 url="/api/v1/worms",
-                domain="elb",
             )
             if response is None:
                 self.log.error(
-                    f"<r>⭕ {self.account_name} failed to get worm status!</r>"
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get worm status!</r>"
                 )
                 return None
             return response["data"].get("is_caught", None)
@@ -33,7 +48,6 @@ class Worm:
             if wormInfo:
                 response = self.http.post(
                     url="/api/v1/worms/catch",
-                    domain="elb",
                     display_errors=False,
                 )
                 if response is None:
@@ -47,11 +61,10 @@ class Worm:
         try:
             response = self.http.get(
                 url="/api/v1/worms/me-all",
-                domain="elb",
             )
             if response is None:
                 self.log.error(
-                    f"<r>⭕ {self.account_name} failed to get worm list!</r>"
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get worm list!</r>"
                 )
                 return None
             return response

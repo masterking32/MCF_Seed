@@ -17,7 +17,6 @@ class Task:
         try:
             response = self.http.get(
                 url="/api/v1/tasks/progresses",
-                domain="elb",
             )
 
             if response is None:
@@ -38,7 +37,6 @@ class Task:
         try:
             response = self.http.get(
                 url="/api/v1/tasks/progresses",
-                domain="elb",
             )
 
             if response is None:
@@ -62,7 +60,6 @@ class Task:
         try:
             response = self.http.post(
                 url=f"/api/v1/tasks/{task_id}",
-                domain="elb",
             )
 
             if response is None:
@@ -82,7 +79,6 @@ class Task:
         try:
             response = self.http.post(
                 url=f"/api/v1/upgrades/tasks/{task_id}",
-                domain="elb",
             )
 
             if response is None:
@@ -102,7 +98,6 @@ class Task:
         try:
             response = self.http.get(
                 url="/api/v1/upgrades/tasks/progresses",
-                domain="elb",
             )
 
             if response is None:

@@ -13,6 +13,8 @@ from .core.Base import Base
 from .core.Task import Task
 from .core.Hunt import Hunt
 from .core.Worm import Worm
+from .core.Boost import Boost
+from .core.Bird import Bird
 
 MasterCryptoFarmBot_Dir = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__ + "/../../"))
@@ -90,6 +92,14 @@ class FarmBot:
                     )
                     return None, None
 
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🔃 Sending basic requests ...</g>"
+            )
+
+            progresses = task.get_progresses()
+            login_bonus = base.get_login_bonus()
+            settings = base.get_settings()
+
             balance = base.get_balance()
             balance_rounded = round(
                 balance.get("data", 0) / 1_000_000_000,
@@ -100,8 +110,13 @@ class FarmBot:
                 f"<cyan>{self.account_name}</cyan><g> | 📈 Balance: {balance_rounded}</g>"
             )
 
-            progresses = task.get_progresses()
-            login_bonus = base.get_login_bonus()
+            last_message = base.get_last_message()
+
+            boost = Boost(self.log, self.http, self.account_name)
+            boosts = boost.get_boosts()
+            worm_data = worm.get_worm()
+            bird = Bird(self.log, self.http, self.account_name)
+            is_leader = bird.is_leader()
 
             upgrade_levels = base.get_levels()
 

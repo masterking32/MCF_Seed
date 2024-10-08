@@ -46,6 +46,48 @@ class Base:
             )
             return None
 
+    def get_settings(self):
+        try:
+            response = self.http.get(
+                url="/api/v1/settings",
+                display_errors=False,
+            )
+
+            if response is None:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get settings!</r>"
+                )
+                return None
+
+            return response
+
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to get settings!</r>"
+            )
+            return None
+
+    def get_last_message(self):
+        try:
+            response = self.http.get(
+                url="/api/v1/messages",
+                display_errors=False,
+            )
+
+            if response is None:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get messages!</r>"
+                )
+                return None
+
+            return response
+
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to get messages!</r>"
+            )
+            return None
+
     def get_profile2(self):
         try:
             response = self.http.get(
@@ -90,7 +132,6 @@ class Base:
         try:
             response = self.http.post(
                 url="/api/v1/profile",
-                domain="elb",
             )
             if response is None:
                 self.log.error(
@@ -130,7 +171,6 @@ class Base:
         try:
             response = self.http.get(
                 url="/api/v1/profile/balance",
-                domain="elb",
             )
 
             if response is None:
@@ -151,7 +191,6 @@ class Base:
         try:
             response = self.http.post(
                 url="/api/v1/seed/claim",
-                domain="elb",
                 display_errors=False,
             )
 
@@ -176,7 +215,6 @@ class Base:
         try:
             response = self.http.post(
                 url=url,
-                domain="elb",
                 display_errors=False,
             )
             if response is None:
@@ -195,7 +233,6 @@ class Base:
         try:
             response = self.http.post(
                 url="/api/v1/login-bonuses",
-                domain="elb",
                 display_errors=False,
             )
 
@@ -209,7 +246,6 @@ class Base:
         try:
             response = self.http.post(
                 url="/api/v1/egg-hatch/complete",
-                domain="elb",
                 data=json.dumps({"egg_id": egg_id}),
                 display_errors=False,
             )
@@ -226,7 +262,6 @@ class Base:
         try:
             response = self.http.post(
                 url="/api/v1/give-first-egg",
-                domain="elb",
                 display_errors=False,
             )
             if not response:
