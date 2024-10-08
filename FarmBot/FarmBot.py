@@ -15,6 +15,8 @@ from .core.Hunt import Hunt
 from .core.Worm import Worm
 from .core.Boost import Boost
 from .core.Bird import Bird
+from .core.Guild import Guild
+from .core.Events import Events
 
 MasterCryptoFarmBot_Dir = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__ + "/../../"))
@@ -93,30 +95,68 @@ class FarmBot:
                     return None, None
 
             self.log.info(
-                f"<cyan>{self.account_name}</cyan><g> | 🔃 Sending basic requests ...</g>"
+                f"<cyan>{self.account_name}</cyan><g> | 🔄 Sending basic requests ...</g>"
             )
 
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 📊 Getting progresses ...</g>"
+            )
             progresses = task.get_progresses()
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🎁 Getting login bonus ...</g>"
+            )
             login_bonus = base.get_login_bonus()
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | ⚙️ Getting settings ...</g>"
+            )
             settings = base.get_settings()
-
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 👤 Getting profile ...</g>"
+            )
+            profile = base.get_profile2()
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 💰 Getting balance ...</g>"
+            )
             balance = base.get_balance()
             balance_rounded = round(
                 balance.get("data", 0) / 1_000_000_000,
                 3 if balance.get("data", 0) > 1_000_000_000 else 0,
             )
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 📨 Getting last message ...</g>"
+            )
+            last_message = base.get_last_message()
+
+            boost = Boost(self.log, self.http, self.account_name)
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🚀 Getting boosts ...</g>"
+            )
+            boosts = boost.get_boosts()
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🐛 Getting worms ...</g>"
+            )
+            worm_data = worm.get_worm()
+            bird = Bird(self.log, self.http, self.account_name)
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🦅 Getting bird ...</g>"
+            )
+            is_leader = bird.is_leader()
+
+            guild = Guild(self.log, self.http, self.account_name)
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🏰 Getting guild ...</g>"
+            )
+            guild_detail = guild.get_guild_detail()
+
+            events = Events(self.log, self.http, self.account_name)
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 📅 Getting events ...</g>"
+            )
+            event_me = events.get_me()
 
             self.log.info(
                 f"<cyan>{self.account_name}</cyan><g> | 📈 Balance: {balance_rounded}</g>"
             )
-
-            last_message = base.get_last_message()
-
-            boost = Boost(self.log, self.http, self.account_name)
-            boosts = boost.get_boosts()
-            worm_data = worm.get_worm()
-            bird = Bird(self.log, self.http, self.account_name)
-            is_leader = bird.is_leader()
 
             upgrade_levels = base.get_levels()
 

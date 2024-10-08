@@ -63,14 +63,14 @@ class HttpRequest:
                 for key, value in headers.items():
                     default_headers[key] = value
 
-            if send_option_request:
-                self.options(
-                    url=url,
-                    method="GET",
-                    headers=headers,
-                    valid_response_code=valid_option_response_code,
-                    display_errors=display_errors,
-                )
+            # if send_option_request:
+            #     self.options(
+            #         url=url,
+            #         method="GET",
+            #         headers=headers,
+            #         valid_response_code=valid_option_response_code,
+            #         display_errors=display_errors,
+            #     )
 
             response = requests.get(
                 url=url,
@@ -141,14 +141,14 @@ class HttpRequest:
                 for key, value in headers.items():
                     default_headers[key] = value
 
-            if send_option_request:
-                self.options(
-                    url=url,
-                    method="POST",
-                    headers=headers,
-                    valid_response_code=valid_option_response_code,
-                    display_errors=display_errors,
-                )
+            # if send_option_request:
+            #     self.options(
+            #         url=url,
+            #         method="POST",
+            #         headers=headers,
+            #         valid_response_code=valid_option_response_code,
+            #         display_errors=display_errors,
+            #     )
             response = None
 
             if data:
