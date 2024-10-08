@@ -6,6 +6,7 @@ import sys
 import os
 import time
 import random
+from dateutil import parser
 
 from utilities.utilities import getConfig
 from .core.HttpRequest import HttpRequest
@@ -17,6 +18,8 @@ from .core.Boost import Boost
 from .core.Bird import Bird
 from .core.Guild import Guild
 from .core.Events import Events
+from .core.Seed import Seed
+
 
 MasterCryptoFarmBot_Dir = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__ + "/../../"))
@@ -64,7 +67,7 @@ class FarmBot:
             worm = Worm(self.log, self.http, self.account_name)
 
             if getConfig("auto_add_tag", False):
-                base.check_tag(tgAccount=self.tgAccount)
+                await base.check_tag(tgAccount=self.tgAccount)
 
             profile = base.get_profile2()
             if profile is None or "data" not in profile:
@@ -92,7 +95,7 @@ class FarmBot:
                     self.log.error(
                         f"<r>⭕ <c>{self.account_name}</c> failed to get profile!</r>"
                     )
-                    return None, None
+                    return None
 
             self.log.info(
                 f"<cyan>{self.account_name}</cyan><g> | 🔄 Sending basic requests ...</g>"
@@ -114,6 +117,12 @@ class FarmBot:
                 f"<cyan>{self.account_name}</cyan><g> | 👤 Getting profile ...</g>"
             )
             profile = base.get_profile2()
+            if profile is None:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get profile!</r>"
+                )
+                return None
+
             self.log.info(
                 f"<cyan>{self.account_name}</cyan><g> | 💰 Getting balance ...</g>"
             )
@@ -135,7 +144,7 @@ class FarmBot:
             self.log.info(
                 f"<cyan>{self.account_name}</cyan><g> | 🐛 Getting worms ...</g>"
             )
-            worm_data = worm.get_worm()
+            worms = worm.get_worms()
             bird = Bird(self.log, self.http, self.account_name)
             self.log.info(
                 f"<cyan>{self.account_name}</cyan><g> | 🦅 Getting bird ...</g>"
@@ -146,7 +155,7 @@ class FarmBot:
             self.log.info(
                 f"<cyan>{self.account_name}</cyan><g> | 🏰 Getting guild ...</g>"
             )
-            guild_detail = guild.get_guild_detail()
+            guild_detail = guild.get_detail()
 
             events = Events(self.log, self.http, self.account_name)
             self.log.info(
@@ -155,31 +164,52 @@ class FarmBot:
             event_me = events.get_me()
 
             self.log.info(
-                f"<cyan>{self.account_name}</cyan><g> | 📈 Balance: {balance_rounded}</g>"
+                f"<cyan>{self.account_name}</cyan><g> | 📈 Balance: <c>{balance_rounded} 💚</c></g>"
             )
+
+            if (
+                "data" in profile
+                and profile["data"] is not None
+                and "last_claim" in profile["data"]
+            ):
+
+                last_claim = profile["data"]["last_claim"]
+                if last_claim.startswith("0001"):
+                    last_claim = "2022-10-08T22:41:44.069281Z"
+
+                last_claim = int(parser.isoparse(last_claim).timestamp())
+                current_time = int(time.time())
+                if current_time - last_claim > 1800:
+                    seed = Seed(self.log, self.http, self.account_name)
+                    self.log.info(
+                        f"<cyan>{self.account_name}</cyan><g> | 📦 Claiming seed...</g>"
+                    )
+
+                    seed_claim = seed.claim()
+                    if seed_claim is not None:
+                        self.log.info(
+                            f"<cyan>{self.account_name}</cyan><g> | 📦 Claimed {seed_claim.get('data', {}).get('amount', 0) / 1_000_000_000} Seed 💚</g>"
+                        )
+
+                    balance = base.get_balance()
+                    profile = base.get_profile2()
+                else:
+                    self.log.info(
+                        f"<cyan>{self.account_name}</cyan><g> | 📦 Seed already claimed...</g>"
+                    )
 
             upgrade_levels = base.get_levels()
 
             self.log.info(
-                f"<cyan>{self.account_name}</cyan><g> | 📦 Storage level: {upgrade_levels.get('storage-size', 1)} | ⛏️ Mining level: {upgrade_levels.get('mining-speed', 1)} | 💧 Holy level: {upgrade_levels.get('holy-water', 1)}</g>"
+                f"<cyan>{self.account_name}</cyan><g> | 📦 Storage level: <c>{upgrade_levels.get('storage-size', 1)}</c> | ⛏️ Mining level: <c>{upgrade_levels.get('mining-speed', 1)}</c> | 💧 Holy level: <c>{upgrade_levels.get('holy-water', 1)}</c></g>"
             )
 
-            wormCaught = worm.capture_worm()
-            claimStatus = base.claim()
-
-            if claimStatus is not None:
-                self.log.info(
-                    f"<cyan>{self.account_name}</cyan><g> | ⛏️ Claimed {claimStatus.get('data', {}).get('amount', 0) / 1_000_000_000} Seed 💚</g>"
-                )
-
-            if wormCaught:
-                self.log.info(
-                    f"<cyan>{self.account_name}</cyan><g> | 🐛 Worm caught from the tree!</g>"
-                )
-
-            profile = profile["data"]
-
-            if profile.get("give_first_egg", True) is False:
+            if (
+                profile is not None
+                and "data" in profile
+                and "give_first_egg" in profile["data"]
+                and profile["data"]["give_first_egg"] is False
+            ):
                 self.log.info(
                     f"<cyan>{self.account_name}</cyan><g> | 🐣 Getting first egg...</g>"
                 )
@@ -188,6 +218,28 @@ class FarmBot:
                     self.log.error(
                         f"<r>⭕ <c>{self.account_name}</c> failed to get first egg!</r>"
                     )
+            if (
+                worms is not None
+                and "data" in worms
+                and "is_caught" in worms["data"]
+                and worms["data"]["is_caught"] is False
+            ):
+                self.log.info(
+                    f"<cyan>{self.account_name}</cyan><g> | 🐛 Capturing worm...</g>"
+                )
+                worm_capture = worm.capture_worm()
+                if worm_capture is not None:
+                    self.log.info(
+                        f"<cyan>{self.account_name}</cyan><g> | 🐛 Captured worm!</g>"
+                    )
+                    worms = worm.get_worms()
+            else:
+                self.log.info(
+                    f"<cyan>{self.account_name}</cyan><g> | 🐛 Worm already captured...</g>"
+                )
+
+            return
+            profile = profile["data"]
 
             dailyBonusResult = base.get_daily_checkin()
 
@@ -231,7 +283,7 @@ class FarmBot:
         except Exception as e:
             self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to login!</r>")
             self.log.error(f"<r>⭕ Error (for devs): {e}</r>")
-            return None, None
+            return None
         finally:
             delay_between_accounts = getConfig("delay_between_accounts", 60)
             random_sleep = random.randint(0, 20) + delay_between_accounts

@@ -13,7 +13,7 @@ class Base:
         self.http = httpRequest
         self.account_name = account_name
 
-    def check_tag(self, tgAccount):
+    async def check_tag(self, tgAccount):
         if tgAccount is None:
             return
 
@@ -22,7 +22,7 @@ class Base:
             return
 
         if "🌱SEED" not in tgMe.last_name and "🌱SEED" not in tgMe.first_name:
-            tgAccount.setName(tgMe.first_name, tgMe.last_name + " 🌱SEED")
+            await tgAccount.setName(tgMe.first_name, tgMe.last_name + " 🌱SEED")
             self.log.info(
                 f"<cyan>{self.account_name}</cyan><g> | 🌱 Tag has been added to the last name!</g>"
             )
@@ -70,7 +70,7 @@ class Base:
     def get_last_message(self):
         try:
             response = self.http.get(
-                url="/api/v1/messages",
+                url="/api/v1/latest-message",
                 display_errors=False,
             )
 
@@ -185,22 +185,6 @@ class Base:
             self.log.error(
                 f"<r>⭕ {self.account_name}</c> | {e} failed to get balance!</r>"
             )
-            return None
-
-    def claim(self):
-        try:
-            response = self.http.post(
-                url="/api/v1/seed/claim",
-                display_errors=False,
-            )
-
-            if response is None:
-                # self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to claim!</r>")
-                return None
-
-            return response
-        except Exception as e:
-            self.log.error(f"<r>⭕ {self.account_name}</c> | {e} failed to claim!</r>")
             return None
 
     def upgrade(self, upgrade_type):

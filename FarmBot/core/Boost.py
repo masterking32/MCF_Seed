@@ -16,7 +16,7 @@ class Boost:
     def get_boosts(self):
         try:
             response = self.http.get(
-                url="/api/v1/boosts",
+                url="/api/v1/profile/boosts",
             )
 
             if response is None:

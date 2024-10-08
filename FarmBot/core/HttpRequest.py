@@ -62,22 +62,20 @@ class HttpRequest:
             if headers:
                 for key, value in headers.items():
                     default_headers[key] = value
-
-            # if send_option_request:
-            #     self.options(
-            #         url=url,
-            #         method="GET",
-            #         headers=headers,
-            #         valid_response_code=valid_option_response_code,
-            #         display_errors=display_errors,
-            #     )
+            if send_option_request:
+                self.options(
+                    url=url,
+                    method="GET",
+                    headers=headers,
+                    valid_response_code=valid_option_response_code,
+                    display_errors=display_errors,
+                )
 
             response = requests.get(
                 url=url,
                 headers=default_headers,
                 proxies=self._get_proxy(),
             )
-
             if response.status_code != valid_response_code:
                 if display_errors:
                     self.log.error(
@@ -141,14 +139,14 @@ class HttpRequest:
                 for key, value in headers.items():
                     default_headers[key] = value
 
-            # if send_option_request:
-            #     self.options(
-            #         url=url,
-            #         method="POST",
-            #         headers=headers,
-            #         valid_response_code=valid_option_response_code,
-            #         display_errors=display_errors,
-            #     )
+            if send_option_request:
+                self.options(
+                    url=url,
+                    method="POST",
+                    headers=headers,
+                    valid_response_code=valid_option_response_code,
+                    display_errors=display_errors,
+                )
             response = None
 
             if data:
@@ -290,8 +288,6 @@ class HttpRequest:
     def _get_default_headers(self):
         headers = {
             "accept": "*/*",
-            "accept-encoding": "gzip, deflate, br, zstd",
-            "accept-language": "en-US,en;q=0.9",
             "Origin": "https://cf.seeddao.org",
             "priority": "u=1, i",
             "referer": "https://cf.seeddao.org/",
@@ -318,8 +314,6 @@ class HttpRequest:
     def _get_get_option_headers(self, headers=None, method="GET"):
         default_headers = {
             "accept": "*/*",
-            "accept-encoding": "gzip, deflate, br, zstd",
-            "accept-language": "en-US,en;q=0.9",
             "Origin": "https://cf.seeddao.org",
             "priority": "u=1, i",
             "referer": "https://cf.seeddao.org/",
