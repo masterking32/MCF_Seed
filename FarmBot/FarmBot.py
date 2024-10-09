@@ -69,6 +69,10 @@ class FarmBot:
             if getConfig("auto_add_tag", False):
                 await base.check_tag(tgAccount=self.tgAccount)
 
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🔄 Getting profile ...</g>"
+            )
+
             profile = base.get_profile2()
             if profile is None or "data" not in profile:
                 self.log.error(
@@ -77,11 +81,7 @@ class FarmBot:
                 return None
 
             profile = profile.get("data", {})
-            if (
-                "newcomer_event" in profile
-                and profile["newcomer_event"] is True
-                or "tg_id" not in profile
-            ):
+            if profile.get("newcomer_event", False) or "tg_id" not in profile:
                 self.log.info(
                     f"<cyan>{self.account_name}</cyan><g> | 🐣 Registering account...</g>"
                 )
