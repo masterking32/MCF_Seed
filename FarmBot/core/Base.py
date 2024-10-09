@@ -145,9 +145,48 @@ class Base:
             )
             return None
 
-    def get_levels(self):
+    def get_daliy_login_streak(self):
         try:
-            profile = self.get_profile()
+            response = self.http.get(
+                url="/api/v1/daily-login-streak",
+                display_errors=False,
+            )
+
+            if response is None:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get daily streak!</r>"
+                )
+                return None
+
+            return response
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to get daily streak!</r>"
+            )
+            return None
+
+    def get_streak_reward(self):
+        try:
+            response = self.http.post(
+                url="/api/v1/streak-reward",
+                display_errors=False,
+            )
+
+            if response is None:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to get daily streak reward!</r>"
+                )
+                return None
+
+            return response
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to get daily streak reward!</r>"
+            )
+            return None
+
+    def get_levels(self, profile=None):
+        try:
             if profile is None:
                 return None
             upgrade_levels = {}
@@ -204,7 +243,7 @@ class Base:
             if response is None:
                 return None
             self.log.info(
-                f"<g> <c>{self.account_name}</c> upgraded {upgrade_type} 🆙⬆️!</g>"
+                f"<g><c>{self.account_name}</c> ⬆️ upgraded {upgrade_type} 🆙!</g>"
             )
             return response
         except Exception as e:
@@ -213,7 +252,7 @@ class Base:
             )
             return None
 
-    def get_daily_checkin(self):
+    def get_daily_check_in(self):
         try:
             response = self.http.post(
                 url="/api/v1/login-bonuses",
@@ -224,6 +263,21 @@ class Base:
 
         except Exception as e:
             self.log.error(f"<r>⭕ {e} failed to get daily checkin!</r>")
+            return None
+
+    def claim_streak_reward(self, streak_reward_ids):
+        try:
+            response = self.http.post(
+                url="/api/v1/streak-reward",
+                data=json.dumps({"streak_reward_ids": streak_reward_ids}),
+                display_errors=False,
+            )
+
+            return response if response is not None else None
+        except Exception as e:
+            self.log.error(
+                f"<r>⭕ {self.account_name}</c> | {e} failed to claim streak reward!</r>"
+            )
             return None
 
     def hatch_egg(self, egg_id):

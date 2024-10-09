@@ -182,23 +182,23 @@ class FarmBot:
                 if current_time - last_claim > 1800:
                     seed = Seed(self.log, self.http, self.account_name)
                     self.log.info(
-                        f"<cyan>{self.account_name}</cyan><g> | 📦 Claiming seed...</g>"
+                        f"<cyan>{self.account_name}</cyan><g> | 💚 Claiming seed...</g>"
                     )
 
                     seed_claim = seed.claim()
                     if seed_claim is not None:
                         self.log.info(
-                            f"<cyan>{self.account_name}</cyan><g> | 📦 Claimed {seed_claim.get('data', {}).get('amount', 0) / 1_000_000_000} Seed 💚</g>"
+                            f"<cyan>{self.account_name}</cyan><g> | 💚 Claimed <c>{seed_claim.get('data', {}).get('amount', 0) / 1_000_000_000}</c> Seed 💚</g>"
                         )
 
                     balance = base.get_balance()
                     profile = base.get_profile2()
                 else:
                     self.log.info(
-                        f"<cyan>{self.account_name}</cyan><g> | 📦 Seed already claimed...</g>"
+                        f"<cyan>{self.account_name}</cyan><g> | 💚 Seed already claimed...</g>"
                     )
 
-            upgrade_levels = base.get_levels()
+            upgrade_levels = base.get_levels(profile)
 
             self.log.info(
                 f"<cyan>{self.account_name}</cyan><g> | 📦 Storage level: <c>{upgrade_levels.get('storage-size', 1)}</c> | ⛏️ Mining level: <c>{upgrade_levels.get('mining-speed', 1)}</c> | 💧 Holy level: <c>{upgrade_levels.get('holy-water', 1)}</c></g>"
@@ -224,29 +224,82 @@ class FarmBot:
                 and "is_caught" in worms["data"]
                 and worms["data"]["is_caught"] is False
             ):
-                self.log.info(
-                    f"<cyan>{self.account_name}</cyan><g> | 🐛 Capturing worm...</g>"
+                start_time = int(
+                    parser.isoparse(worms["data"]["created_at"]).timestamp()
                 )
-                worm_capture = worm.capture_worm()
-                if worm_capture is not None:
+                end_time = int(parser.isoparse(worms["data"]["ended_at"]).timestamp())
+
+                if start_time < time.time() < end_time:
                     self.log.info(
-                        f"<cyan>{self.account_name}</cyan><g> | 🐛 Captured worm!</g>"
+                        f"<cyan>{self.account_name}</cyan><g> | 🐛 Capturing worm...</g>"
                     )
-                    worms = worm.get_worms()
+                    worm_capture = worm.capture_worm()
+                    if worm_capture is not None:
+                        self.log.info(
+                            f"<cyan>{self.account_name}</cyan><g> | 🐛 Captured worm!</g>"
+                        )
+                        worms = worm.get_worms()
+                else:
+                    self.log.info(
+                        f"<cyan>{self.account_name}</cyan><g> | 🐛 Worm event not started...</g>"
+                    )
             else:
                 self.log.info(
                     f"<cyan>{self.account_name}</cyan><g> | 🐛 Worm already captured...</g>"
                 )
 
-            return
-            profile = profile["data"]
+            if (login_bonus is not None) and "data" in login_bonus:
+                ready_to_claim = False
+                day = 0
+                if "no" in login_bonus["data"]:
+                    last_claim = int(
+                        parser.isoparse(login_bonus["data"]["timestamp"]).timestamp()
+                    )
+                    current_time = int(time.time())
+                    if current_time - last_claim > 86400:
+                        ready_to_claim = True
+                        day = login_bonus["data"]["no"]
+                else:
+                    ready_to_claim = True
 
-            dailyBonusResult = base.get_daily_checkin()
+                day += 1
+                streak_reward = None
+                if ready_to_claim:
+                    self.log.info(
+                        f"<cyan>{self.account_name}</cyan><g> | 🎯 Claiming daily bonus! Day: <c>{day} 🗓️</c></g>"
+                    )
 
-            if dailyBonusResult is not None:
-                self.log.info(
-                    f"<cyan>{self.account_name}</cyan><g> | 🎯 Claimed daily bonus! Day: {dailyBonusResult.get('data', {}).get('no', 1)}</g>"
-                )
+                    base.get_daliy_streak()
+                    base.get_streak_reward()
+                    base.get_login_bonus()
+                    base.get_settings()
+                    time.sleep(1)
+
+                    dailyBonusResult = base.get_daily_check_in()
+                    if dailyBonusResult is not None:
+                        self.log.info(
+                            f"<cyan>{self.account_name}</cyan><g> | 🎯 Claimed daily bonus! Day: {dailyBonusResult.get('data', {}).get('no', 1)}</g>"
+                        )
+
+                    base.get_daliy_streak()
+                    streak_reward = base.get_streak_reward()
+                    base.get_login_bonus()
+
+                if (
+                    streak_reward is not None
+                    and "data" in streak_reward
+                    and "status" in streak_reward["data"]
+                ):
+                    if streak_reward["data"]["status"] == "created":
+                        streak_reward_id = streak_reward["data"]["id"]
+                        self.log.info(
+                            f"<cyan>{self.account_name}</cyan><g> | 🎯 Claiming streak reward...</g>"
+                        )
+                        base.claim_streak_reward(streak_reward_id)
+
+                        self.log.info(
+                            f"<cyan>{self.account_name}</cyan><g> | 🎯 Claimed streak reward!</g>"
+                        )
 
             if getConfig("auto_upgrade_storage", True):
                 self.log.info(
@@ -271,7 +324,7 @@ class FarmBot:
                 self.log.info(
                     f"<cyan>{self.account_name}</cyan><g> | 📗 Starting to do tasks...</g>"
                 )
-                task.do_tasks()
+                await task.do_tasks(self.bot_globals, tgAccount=self.tgAccount)
                 task.do_holy_tasks()
                 self.log.info(
                     f"<cyan>{self.account_name}</cyan><g> | 📗 Possible Tasks completed!</g>"
@@ -281,7 +334,7 @@ class FarmBot:
                 hunt.process_hunt()
 
         except Exception as e:
-            self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to login!</r>")
+            self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to finish!</r>")
             self.log.error(f"<r>⭕ Error (for devs): {e}</r>")
             return None
         finally:

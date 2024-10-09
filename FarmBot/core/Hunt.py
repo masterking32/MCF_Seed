@@ -3,8 +3,10 @@
 # Github: https://github.com/masterking32
 # Telegram: https://t.me/MasterCryptoFarmBot
 
-import datetime
+
 import json
+import time
+from dateutil import parser
 
 
 class Hunt:
@@ -114,33 +116,24 @@ class Hunt:
             self.log.info(f"{self.account_name} | Can't get bird data...")
             return None
         elif bird_data["status"] == "hunting":
+            timestamp_naive = int(parser.isoparse(bird_data["hunt_end_at"]).timestamp())
 
-            try:
-                given_time = datetime.fromisoformat(bird_data["hunt_end_at"])
-                timestamp_naive = given_time.replace(tzinfo=None)
-            except:
-                import dateutil.parser
-
-                timestamp_naive = dateutil.parser.isoparse(bird_data["hunt_end_at"])
-            now = datetime.now(datetime.timezone.utc)
-
-            if timestamp_naive.tzinfo is None:
-                timestamp_naive = timestamp_naive.replace(tzinfo=datetime.timezone.utc)
+            now = int(time.time())
 
             if now < timestamp_naive:
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>🦅 Bird currently hunting...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 🦅 Bird currently hunting...</g>"
                 )
             else:
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>🦅 Bird hunt completed, claiming reward...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 🦅 Bird hunt completed, claiming reward...</g>"
                 )
                 self.claim_hunt_reward(bird_data["id"])
         else:
             condition = True
             if bird_data["energy_level"] == 0:
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>🦅 Feeding bird...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 🦅 Feeding bird...</g>"
                 )
                 from .Worm import Worm
 
@@ -184,12 +177,12 @@ class Hunt:
                         condition = False
             if bird_data["happiness_level"] == 0:
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan> | <g>🦅 Attempting to make bird happy...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | 🦅 Attempting to make bird happy...</g>"
                 )
                 check = self.make_bird_happy(bird_data["id"])
                 if check:
                     self.log.info(
-                        f"<cyan>{self.account_name}</cyan> | <g>🦅 Bird is happy now!</g>"
+                        f"<cyan>{self.account_name}</cyan><g> | 🦅 Bird is happy now!</g>"
                     )
                 else:
                     self.log.info(
@@ -201,5 +194,5 @@ class Hunt:
                 huntResponse = self.start_hunt(bird_data["id"])
                 if huntResponse is not None:
                     self.log.info(
-                        f"<cyan>{self.account_name}</cyan> | <g>🦅 Bird is now hunting!</g>"
+                        f"<cyan>{self.account_name}</cyan><g> | 🦅 Bird is now hunting!</g>"
                     )
