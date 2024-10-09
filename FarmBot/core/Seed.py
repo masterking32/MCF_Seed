@@ -26,5 +26,7 @@ class Seed:
 
             return response
         except Exception as e:
-            self.log.error(f"<r>⭕ {self.account_name}</c> | {e} failed to claim!</r>")
+            self.log.error(
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to claim!</r>"
+            )
             return None

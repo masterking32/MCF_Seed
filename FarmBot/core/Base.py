@@ -63,7 +63,7 @@ class Base:
 
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to get settings!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get settings!</r>"
             )
             return None
 
@@ -84,7 +84,7 @@ class Base:
 
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to get messages!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get messages!</r>"
             )
             return None
 
@@ -104,7 +104,7 @@ class Base:
 
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to get profile!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get profile!</r>"
             )
             return None
 
@@ -124,7 +124,7 @@ class Base:
 
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to get profile!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get profile!</r>"
             )
             return None
 
@@ -141,7 +141,7 @@ class Base:
             return response
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to set-up account!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to set-up account!</r>"
             )
             return None
 
@@ -161,7 +161,7 @@ class Base:
             return response
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to get daily streak!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get daily streak!</r>"
             )
             return None
 
@@ -181,7 +181,7 @@ class Base:
             return response
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to get daily streak reward!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get daily streak reward!</r>"
             )
             return None
 
@@ -214,7 +214,7 @@ class Base:
 
             if response is None:
                 self.log.error(
-                    f"<r>⭕ {self.account_name}</c> | <c>{self.account_name}</c> failed to get balance!</r>"
+                    f"<r>⭕ <c>{self.account_name}</c> | <c>{self.account_name}</c> failed to get balance!</r>"
                 )
                 return None
 
@@ -222,7 +222,7 @@ class Base:
 
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to get balance!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get balance!</r>"
             )
             return None
 
@@ -248,7 +248,7 @@ class Base:
             return response
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to upgrade {upgrade_type}!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to upgrade {upgrade_type}!</r>"
             )
             return None
 
@@ -276,7 +276,7 @@ class Base:
             return response if response is not None else None
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to claim streak reward!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to claim streak reward!</r>"
             )
             return None
 
@@ -292,7 +292,7 @@ class Base:
 
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to hatch egg!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to hatch egg!</r>"
             )
             return None
 
@@ -310,6 +310,6 @@ class Base:
 
         except Exception as e:
             self.log.error(
-                f"<r>⭕ {self.account_name}</c> | {e} failed to get first egg!</r>"
+                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get first egg!</r>"
             )
             return None
