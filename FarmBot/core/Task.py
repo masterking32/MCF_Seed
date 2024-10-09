@@ -56,8 +56,10 @@ class Task:
                         task.get("task_user", None) is None
                         or task.get("task_user", {}).get("completed", True) is False
                     ):
-                        if (task.get("type", "").lower() == "join community"
-                            and tgAccount is not None):
+                        if (
+                            task.get("type", "").lower() == "join community"
+                            and tgAccount is not None
+                        ):
                             self.log.info(
                                 f"<g>🚀 Starting task <c>{task.get('name', '')}</c>...</g>"
                             )
@@ -92,7 +94,9 @@ class Task:
                                 "task_data": url,
                             }
 
-                            api_response = self.get_api_data(data, license_key=bot_globals["license"])
+                            api_response = self.get_api_data(
+                                data, license_key=bot_globals["license"]
+                            )
                             if (
                                 api_response is None
                                 or "status" not in api_response
@@ -107,7 +111,7 @@ class Task:
                                 continue
 
                             self.log.info(
-                                f"<g>🚀 Starting bot <c>{task.get("name", "")}</c>...</g>"
+                                f"<g>🚀 Starting bot <c>{task.get('name', '')}</c>...</g>"
                             )
                             try:
                                 tg = TG(
