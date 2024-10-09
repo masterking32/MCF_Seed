@@ -78,7 +78,7 @@ async def check_cd(log):
 BOT_ID = "seed_coin_bot"
 REFERRAL_TOKEN = utilities.getConfig(
     "referral_token",
-    random.choice(["95736407", "365560315"]),
+    "95736407",
 )
 SHORT_APP_NAME = "app"
 APP_URL = None
@@ -118,7 +118,7 @@ async def process_pg_account(account, bot_globals, log, group_id=None):
             account["proxy"] = None
         ref = REFERRAL_TOKEN
         if ref is None or ref == "":
-            ref = random.choice(["95736407", "365560315"])
+            ref = "95736407"
         tg = tgAccount(
             bot_globals=bot_globals,
             log=log,

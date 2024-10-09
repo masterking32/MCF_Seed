@@ -1,13 +1,5 @@
 [
   {
-    "key": "referral_token",
-    "name": "Referral Token",
-    "type": "text",
-    "placeholder": "e.g: 365560315",
-    "default_value": "",
-    "description": "Put your referral token here. It's just your ID. Format: e.g: 365560315"
-  },
-  {
     "key": "auto_add_tag",
     "name": "Add 🌱SEED to last name",
     "type": "checkbox",
@@ -73,5 +65,14 @@
     "description": "Maximum number of threads to use for checking groups of accounts based on their proxies.",
     "min": 1,
     "max": 15
+  },
+  {
+    "key": "referral_token",
+    "name": "Referral Token",
+    "type": "text",
+    "placeholder": "95736407",
+    "default_value": "95736407",
+    "required": false,
+    "description": "Put your referral token here. It's just your ID. Format: e.g: 95736407"
   }
 ]
