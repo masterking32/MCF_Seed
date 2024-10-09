@@ -13,13 +13,16 @@ class Base:
         self.http = httpRequest
         self.account_name = account_name
 
-    async def check_tag(self, tgAccount):
+    async def check_tag(self, tgAccount=None):
         if tgAccount is None:
             return
 
         tgMe = tgAccount.me if tgAccount.me else None
         if tgMe is None:
             return
+
+        tgMe.first_name = tgMe.first_name or ""
+        tgMe.last_name = tgMe.last_name or ""
 
         if "🌱SEED" not in tgMe.last_name and "🌱SEED" not in tgMe.first_name:
             await tgAccount.setName(tgMe.first_name, tgMe.last_name + " 🌱SEED")
