@@ -145,7 +145,7 @@ class Hunt:
                     self.log.info(f"{self.account_name} | Failed to fetch worm data")
                 elif len(worms) == 0:
                     self.log.warning(
-                        f"{self.account_name} | You dont have any worm to feed bird!"
+                        f"<g>{self.account_name} | You dont have any worm to feed bird!</g>"
                     )
                     condition = False
                 else:
