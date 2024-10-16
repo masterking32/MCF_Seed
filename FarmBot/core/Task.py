@@ -75,7 +75,6 @@ class Task:
                                     url = url.split("/")[0] if "/" in url else url
 
                                 if url == "":
-                                    print(url)
                                     continue
 
                                 await tgAccount.joinChat(
@@ -102,7 +101,6 @@ class Task:
                                 or "status" not in api_response
                                 or api_response["status"] != "success"
                             ):
-                                print(api_response)
                                 continue
 
                             ref_link = api_response.get("referral")
