@@ -53,7 +53,9 @@ class FarmBot:
         self.log.info(
             f"<cyan>{self.account_name}</cyan><g> | 🤖 Starting Seed farming...</g>"
         )
-        self.log("Module Required update. Please wait for new version to be released.")
+        self.log.info(
+            "Module Required update. Please wait for new version to be released."
+        )
         return
         try:
             self.http = HttpRequest(
