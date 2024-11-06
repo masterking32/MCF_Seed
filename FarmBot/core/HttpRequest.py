@@ -21,7 +21,7 @@ class HttpRequest:
         self.proxy = proxy
         self.user_agent = user_agent
         self.game_url = {
-            "elb": "https://elb.seeddao.org",
+            "elb": "https://alb.seeddao.org",
         }
         self.tgWebData = tgWebData
         self.account_name = account_name

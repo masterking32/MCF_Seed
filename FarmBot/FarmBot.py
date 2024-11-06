@@ -49,7 +49,6 @@ class FarmBot:
         self.tgAccount = tgAccount
 
     async def run(self):
-        return
         self.display_name = self.account_name.replace("ma_", "")
         self.log.info(
             f"<cyan>{self.account_name}</cyan><g> | 🤖 Starting Seed farming...</g>"
