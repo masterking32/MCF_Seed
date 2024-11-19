@@ -7,6 +7,9 @@
 import asyncio
 import random
 import time
+import os
+import json
+import uuid
 
 from mcf_utils.api import API
 from mcf_utils.tgAccount import tgAccount as TG
@@ -26,7 +29,7 @@ class Task:
 
             if response is None:
                 self.log.error(
-                    f"<r>⭕ <c>{self.account_name}</c> failed to get tasks!</r>"
+                    f"<r><c>{self.account_name}</c> | ⭕ Failed to get tasks!</r>"
                 )
                 return None
 
@@ -34,7 +37,7 @@ class Task:
 
         except Exception as e:
             self.log.error(
-                f"<r>⭕ <c>{self.account_name}</c> | {e} failed to get tasks!</r>"
+                f"<r><c>{self.account_name}</c> | ⭕ {e} failed to get tasks!</r>"
             )
             return None
 
@@ -46,22 +49,23 @@ class Task:
 
             if response is None:
                 self.log.error(
-                    f"<r>⭕ <c>{self.account_name}</c> failed to get tasks!</r>"
+                    f"<r><c>{self.account_name}</c> | ⭕ Failed to get tasks!</r>"
                 )
                 return None
 
             for task in response["data"]:
                 try:
+                    pwd = ""
                     if (
                         task.get("task_user", None) is None
                         or task.get("task_user", {}).get("completed", True) is False
                     ):
                         if (
-                            task.get("type", "").lower() == "join community"
+                            task.get("type", "") in ["Join community", "OKX_community"]
                             and tgAccount is not None
                         ):
                             self.log.info(
-                                f"<g>🚀 Starting task <c>{task.get('name', '')}</c>...</g>"
+                                f"<g><c>{self.account_name}</c> | 🚀 Starting task <c>{task.get('name', '')}</c>...</g>"
                             )
                             try:
                                 url = task.get("metadata", {}).get("url", "")
@@ -109,8 +113,15 @@ class Task:
                                 continue
 
                             self.log.info(
-                                f"<g>🚀 Starting bot <c>{task.get('name', '')}</c>...</g>"
+                                f"<g><c>{self.account_name}</c> | 🚀 Starting bot <c>@{bot_id}</c> for task <c>{task.get('name', '')}</c>...</g>"
                             )
+                            #attempt to use launch word as AppShortName to get webquery
+                            short_app_name = ""
+                            if "?start" in url:
+                                short_app_name = url.split("?")[0].split("/")[-1]
+                            else:
+                                short_app_name = url.split("/")[-1]
+
                             try:
                                 tg = TG(
                                     bot_globals=bot_globals,
@@ -119,57 +130,115 @@ class Task:
                                     proxy=self.http.proxy,
                                     BotID=bot_id,
                                     ReferralToken=ref_link,
+                                    ShortAppName=short_app_name,
                                     MuteBot=True,
                                 )
 
-                                await tg.getWebViewData()
+                                # preventing an attempt to complete task if query not received
+                                if not await tg.getWebViewData():
+                                    continue
 
-                                self.log.info(f"<g>✅ Bot <c>{bot_id}</c> started!</g>")
+                                self.log.info(
+                                    f"<g><c>{self.account_name}</c> | ✅ Bot <c>{bot_id}</c> started!</g>"
+                                )
                                 await asyncio.sleep(5)
                             except Exception as e:
-                                self.log.error(f"<r>⭕ {e} failed to start bot!</r>")
-                        elif (
-                            task.get("type", "") == "TG story"
-                            or task.get("type", "") == "Follow us"
-                            or task.get("type", "") == "telegram-name-include"
-                            or task.get("type", "") == "Add_list"
-                        ):
+                                self.log.error(
+                                    f"<r><c>{self.account_name}</c> | ⭕ {e} failed to start bot!</r>"
+                                )
+                        elif task.get("type", "") in [
+                            "TG story",
+                            "Follow us",
+                            "telegram-name-include",
+                            "Add_list",
+                            "OKX",
+                        ]:
                             pass
+                        elif (
+                            task.get("type", "") in ["academy"]
+                            and task.get("metadata", {}).get("answer_length", -1) > 0
+                        ):
+                            # TODO: PWD TASKS
+                            data = {
+                                "task_type": "keyword",
+                                "task_id": task.get("id", ""),
+                                "task_name": task.get("name", ""),
+                            }
+                            api_response = self.get_api_data(
+                                data, bot_globals["license"]
+                            )
+                            if not api_response:
+                                self.log.info(
+                                    f"<y><c>{self.account_name}</c> | 🟡 Answer for task {task.get('name', '')} not found on API ...</y>"
+                                )
+                                continue
+                            answer = api_response.get("answer", "")
+                            if not answer:
+                                continue
                         else:
                             self.log.info(
-                                f"<y>🟡 <c>{self.account_name}</c> task {task.get('name', '')} not supported...</y>"
+                                f"<y><c>{self.account_name}</c> | 🟡 Task {task.get('name', '')} not supported...</y>"
                             )
                             continue
 
                         self.log.info(
-                            f"<g>📗 <c>{self.account_name}</c> task {task.get('name', '')} started and marked as completed!</g>"
+                            f"<g><c>{self.account_name}</c> | 📗 Task {task.get('name', '')} started and marked as completed!</g>"
                         )
-                        self.complete_task(task["id"], task["name"])
+                        self.complete_task(task["id"], task["name"], pwd)
                         time.sleep(random.randint(1, 5))
                 except Exception as e:
                     pass
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to get tasks!</r>")
+            self.log.error(
+                f"<r><c>{self.account_name}</c> | ⭕ {e} failed to get tasks!</r>"
+            )
             return None
 
-    def complete_task(self, task_id, task_name):
+    def complete_task(self, task_id, task_name, pwd=""):
         try:
             response = self.http.post(
                 url=f"/api/v1/tasks/{task_id}",
+                data=json.dumps({"answer": pwd}) if pwd else None,
             )
 
             if response is None:
-                self.log.error(
-                    f"<r>⭕ <c>{self.account_name}</c> failed to complete task {task_name}!</r>"
-                )
-                return None
+                raise Exception(f"Complete task response is NULL")
+            self.log.info(
+                f"<g><c>{self.account_name}</c> | 📗 Task {task_name} started ...</g>"
+            )
+            time.sleep(random.randint(3, 5))
+            notify_id = response.get("data", "")
+            if not notify_id or not self._is_uuid(notify_id):
+                raise Exception(f"Unable to get notify id.")
 
-            # self.log.info(
-            #     f"<g>📗 <c>{self.account_name}</c> task {task_name} started and marked as completed!</g>"
-            # )
+            is_completed = self._task_notification(notify_id)
+            status = "completed" if is_completed else f"<y>not completed</y>"
+            self.log.info(
+                f"<g><c>{self.account_name}</c> | 📗 Task {task_name} {status}!</g>"
+            )
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to complete task {task_name}!</r>")
+            self.log.error(
+                f"<r><c>{self.account_name}</c> | ⭕ Failed to complete task {task_name}!</r>"
+            )
+            self.log.error(f"<r><c>{self.account_name}</c> | ⭕ {str(e)}</r>")
             return None
+
+    def _task_notification(self, notify_id):
+        response = self.http.get(
+            url=f"/api/v1/tasks/notification/{notify_id}",
+        )
+        if response is None or "data" not in response:
+            return False
+        data = response.get("data", {}).get("data", {})
+        is_completed = data.get("completed", False)
+        return is_completed
+
+    def _is_uuid(self, value: str, version: int = 4) -> bool:
+        try:
+            uuid_obj = uuid.UUID(value, version=version)
+            return str(uuid_obj) == value
+        except ValueError:
+            return False
 
     def complete_upgrades_task(self, task_id, task_name):
         try:
@@ -179,7 +248,7 @@ class Task:
 
             if response is None:
                 self.log.error(
-                    f"<r>⭕ <c>{self.account_name}</c> failed to complete task {task_name}!</r>"
+                    f"<r><c>{self.account_name}</c> | ⭕ Failed to complete task {task_name}!</r>"
                 )
                 return None
 
@@ -187,7 +256,9 @@ class Task:
             #     f"<g>📗 <c>{self.account_name}</c> task {task_name} started and marked as completed!</g>"
             # )
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to complete task {task_name}!</r>")
+            self.log.error(
+                f"<r><c>{self.account_name}</c> | ⭕ {e} failed to complete task {task_name}!</r>"
+            )
             return None
 
     def do_holy_tasks(self):
@@ -198,7 +269,7 @@ class Task:
 
             if response is None:
                 self.log.error(
-                    f"<r>⭕ <c>{self.account_name}</c> failed to get tasks!</r>"
+                    f"<r><c>{self.account_name}</c> | ⭕ Failed to get tasks!</r>"
                 )
                 return None
 
@@ -206,7 +277,9 @@ class Task:
                 self.complete_upgrades_task(task["id"], task["name"])
                 time.sleep(0.5)
         except Exception as e:
-            self.log.error(f"<r>⭕ {e} failed to get tasks!</r>")
+            self.log.error(
+                f"<r><c>{self.account_name}</c> | ⭕ {e} failed to get tasks!</r>"
+            )
             return None
 
     def get_api_data(self, data, license_key):
@@ -228,10 +301,12 @@ class Task:
             and response["status"] == "error"
             and "message" in response
         ):
-            self.log.info(f"<y>🟡 {response['message']}</y>")
+            self.log.info(
+                f"<y><c>{self.account_name}</c> | 🟡 {response['message']}</y>"
+            )
             return None
         else:
             self.log.error(
-                f"<y>🟡 Unable to get task answer, please try again later</y>"
+                f"<y><c>{self.account_name}</c> | 🟡 Unable to get task answer, please try again later</y>"
             )
             return None
