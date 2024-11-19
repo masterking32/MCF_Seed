@@ -111,7 +111,7 @@ class FarmBot:
             )
             login_bonus = base.get_login_bonus()
             self.log.info(
-                f"<cyan>{self.account_name}</cyan><g> | ⚙️ Getting settings ...</g>"
+                f"<cyan>{self.account_name}</cyan><g> | ⚙️  Getting settings ...</g>"
             )
             settings = base.get_settings()
             self.log.info(
@@ -270,7 +270,7 @@ class FarmBot:
                         f"<cyan>{self.account_name}</cyan><g> | 🎯 Claiming daily bonus! Day: <c>{day} 🗓️</c></g>"
                     )
 
-                    base.get_daliy_streak()
+                    base.get_daily_login_streak()
                     base.get_streak_reward()
                     base.get_login_bonus()
                     base.get_settings()
@@ -282,7 +282,7 @@ class FarmBot:
                             f"<cyan>{self.account_name}</cyan><g> | 🎯 Claimed daily bonus! Day: {dailyBonusResult.get('data', {}).get('no', 1)}</g>"
                         )
 
-                    base.get_daliy_streak()
+                    base.get_daily_login_streak()
                     streak_reward = base.get_streak_reward()
                     base.get_login_bonus()
 
@@ -310,7 +310,7 @@ class FarmBot:
                 time.sleep(1)
             if getConfig("auto_upgrade_mining", True):
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan><g> | ⛏️ Checking if mining upgrade is possible...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | ⛏️  Checking if mining upgrade is possible...</g>"
                 )
                 base.upgrade("mining")
                 time.sleep(1)
