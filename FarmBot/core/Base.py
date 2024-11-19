@@ -148,7 +148,7 @@ class Base:
             )
             return None
 
-    def get_daliy_login_streak(self):
+    def get_daily_login_streak(self):
         try:
             response = self.http.get(
                 url="/api/v1/daily-login-streak",
