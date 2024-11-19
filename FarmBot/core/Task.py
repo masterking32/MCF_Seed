@@ -136,8 +136,7 @@ class Task:
                                     MuteBot=True,
                                 )
 
-                                if not await tg.getWebViewData():
-                                    continue
+                                await tg.getWebViewData():
 
                                 self.log.info(
                                     f"<g><c>{self.account_name}</c> | ✅ Bot <c>{bot_id}</c> started!</g>"
