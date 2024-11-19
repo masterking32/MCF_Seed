@@ -35,6 +35,20 @@
     "description": "Should the bot automatically do tasks when possible?"
   },
   {
+    "key": "auto_join_channels",
+    "name": "Auto join channels",
+    "type": "checkbox",
+    "default_value": "on",
+    "description": "Auto join channels to finish tasks."
+  },
+  {
+    "key": "auto_start_bots",
+    "name": "Auto start bots",
+    "type": "checkbox",
+    "default_value": "on",
+    "description": "Auto start bots to finish tasks."
+  },
+  {
     "key": "auto_do_hunt",
     "name": "Auto do hunt",
     "type": "checkbox",

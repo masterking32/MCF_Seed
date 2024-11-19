@@ -13,6 +13,7 @@ import uuid
 
 from mcf_utils.api import API
 from mcf_utils.tgAccount import tgAccount as TG
+from utilities import utilities as utils
 
 
 class Task:
@@ -55,7 +56,7 @@ class Task:
 
             for task in response["data"]:
                 try:
-                    pwd = ""
+                    pwd = None
                     if (
                         task.get("task_user", None) is None
                         or task.get("task_user", {}).get("completed", True) is False
@@ -64,10 +65,15 @@ class Task:
                             task.get("type", "") in ["Join community", "OKX_community"]
                             and tgAccount is not None
                         ):
+
+                            if not utils.getConfig("auto_join_channels", True):
+                                continue
+
                             self.log.info(
                                 f"<g><c>{self.account_name}</c> | 🚀 Starting task <c>{task.get('name', '')}</c>...</g>"
                             )
                             try:
+
                                 url = task.get("metadata", {}).get("url", "")
                                 if "me/+" not in url:
                                     url = (
@@ -85,8 +91,10 @@ class Task:
                                     url,
                                 )
                             except Exception as e:
-                                pass
+                                continue
                         elif task.get("type", "").lower() == "play app":
+                            if not utils.getConfig("auto_start_bots", True):
+                                continue
                             url = task.get("metadata", {}).get("url", "")
 
                             if url == "":
@@ -115,7 +123,7 @@ class Task:
                             self.log.info(
                                 f"<g><c>{self.account_name}</c> | 🚀 Starting bot <c>@{bot_id}</c> for task <c>{task.get('name', '')}</c>...</g>"
                             )
-                            #attempt to use launch word as AppShortName to get webquery
+                            # attempt to use launch word as AppShortName to get webquery
                             short_app_name = ""
                             if "?start" in url:
                                 short_app_name = url.split("?")[0].split("/")[-1]
@@ -158,10 +166,12 @@ class Task:
                             task.get("type", "") in ["academy"]
                             and task.get("metadata", {}).get("answer_length", -1) > 0
                         ):
-                            # TODO: PWD TASKS
+                            if task.get("metadata", {}).get("url", "") == "":
+                                continue
+
                             data = {
                                 "task_type": "keyword",
-                                "task_id": task.get("id", ""),
+                                "task_id": task.get("metadata", {}).get("url", ""),
                                 "task_name": task.get("name", ""),
                             }
                             api_response = self.get_api_data(
@@ -175,6 +185,8 @@ class Task:
                             answer = api_response.get("answer", "")
                             if not answer:
                                 continue
+
+                            pwd = answer
                         else:
                             self.log.info(
                                 f"<y><c>{self.account_name}</c> | 🟡 Task {task.get('name', '')} not supported...</y>"
@@ -198,7 +210,7 @@ class Task:
         try:
             response = self.http.post(
                 url=f"/api/v1/tasks/{task_id}",
-                data=json.dumps({"answer": pwd}) if pwd else None,
+                data=json.dumps({"answer": pwd}) if pwd is not None else "{}",
             )
 
             if response is None:
