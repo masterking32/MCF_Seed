@@ -111,7 +111,7 @@ class FarmBot:
             )
             login_bonus = base.get_login_bonus()
             self.log.info(
-                f"<cyan>{self.account_name}</cyan><g> | ⚙️  Getting settings ...</g>"
+                f"<cyan>{self.account_name}</cyan><g> | ⚙️ Getting settings ...</g>"
             )
             settings = base.get_settings()
             self.log.info(
@@ -310,7 +310,7 @@ class FarmBot:
                 time.sleep(1)
             if getConfig("auto_upgrade_mining", True):
                 self.log.info(
-                    f"<cyan>{self.account_name}</cyan><g> | ⛏️  Checking if mining upgrade is possible...</g>"
+                    f"<cyan>{self.account_name}</cyan><g> | ⛏️ Checking if mining upgrade is possible...</g>"
                 )
                 base.upgrade("mining")
                 time.sleep(1)
