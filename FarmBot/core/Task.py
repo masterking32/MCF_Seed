@@ -136,7 +136,7 @@ class Task:
                                     MuteBot=True,
                                 )
 
-                                await tg.getWebViewData():
+                                await tg.getWebViewData()
 
                                 self.log.info(
                                     f"<g><c>{self.account_name}</c> | ✅ Bot <c>{bot_id}</c> started!</g>"
