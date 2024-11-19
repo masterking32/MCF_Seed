@@ -123,12 +123,6 @@ class Task:
                             self.log.info(
                                 f"<g><c>{self.account_name}</c> | 🚀 Starting bot <c>@{bot_id}</c> for task <c>{task.get('name', '')}</c>...</g>"
                             )
-                            # attempt to use launch word as AppShortName to get webquery
-                            short_app_name = ""
-                            if "?start" in url:
-                                short_app_name = url.split("?")[0].split("/")[-1]
-                            else:
-                                short_app_name = url.split("/")[-1]
 
                             try:
                                 tg = TG(
@@ -138,11 +132,10 @@ class Task:
                                     proxy=self.http.proxy,
                                     BotID=bot_id,
                                     ReferralToken=ref_link,
-                                    ShortAppName=short_app_name,
+                                    AppURL=None,
                                     MuteBot=True,
                                 )
 
-                                # preventing an attempt to complete task if query not received
                                 if not await tg.getWebViewData():
                                     continue
 
