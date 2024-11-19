@@ -270,7 +270,7 @@ class FarmBot:
                         f"<cyan>{self.account_name}</cyan><g> | 🎯 Claiming daily bonus! Day: <c>{day} 🗓️</c></g>"
                     )
 
-                    base.get_daliy_streak()
+                    base.get_daily_login_streak()
                     base.get_streak_reward()
                     base.get_login_bonus()
                     base.get_settings()
@@ -282,7 +282,7 @@ class FarmBot:
                             f"<cyan>{self.account_name}</cyan><g> | 🎯 Claimed daily bonus! Day: {dailyBonusResult.get('data', {}).get('no', 1)}</g>"
                         )
 
-                    base.get_daliy_streak()
+                    base.get_daily_login_streak()
                     streak_reward = base.get_streak_reward()
                     base.get_login_bonus()
 
