@@ -8,7 +8,7 @@ import time
 import random
 from dateutil import parser
 
-from utilities.utilities import getConfig
+from utilities.utilities import add_account_to_display_data, getConfig
 from .core.HttpRequest import HttpRequest
 from .core.Base import Base
 from .core.Task import Task
@@ -76,6 +76,9 @@ class FarmBot:
 
             profile = base.get_profile2()
             if profile is None or "data" not in profile:
+                add_account_to_display_data(
+                    "display_data_bot_issues.json", self.account_name
+                )
                 self.log.error(
                     f"<r>⭕ <c>{self.display_name}</c> failed to get profile!</r>"
                 )
@@ -334,7 +337,16 @@ class FarmBot:
             if getConfig("auto_do_hunt", True):
                 hunt.process_hunt()
 
+            add_account_to_display_data(
+                "display_data_success_accounts.json",
+                self.account_name,
+                "",
+                balance_rounded,
+            )
         except Exception as e:
+            add_account_to_display_data(
+                "display_data_bot_issues.json", self.account_name
+            )
             self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to finish!</r>")
             self.log.error(f"<r>⭕ Error (for devs): {e}</r>")
             return None
