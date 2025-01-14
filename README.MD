@@ -24,7 +24,7 @@ If you find this project useful, please consider giving it a star!
 - **📋 Tasks:** Automatically complete tasks (e.g., Video, Join Channel, Start Other Bots).
 - **🚜 Automatic Farming:** Start and claim farms automatically.
 - **🎁 Claim Friends Reward:** Automatically claim friends' rewards.
-- **🏹 Auto Haunting.
+- **🏹 Auto Haunting**.
 - **🎉 Daily Bonus:** Automatically claim daily bonuses.
 
 ---
