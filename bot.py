@@ -455,6 +455,8 @@ async def main():
     bot_globals["telegram_api_hash"] = cfg.config["telegram_api"]["api_hash"]
 
     while True:
+        log.info("<g>This bot farm has finished!</g>")
+        return
         try:
             log.info("<g>🔍 Checking for accounts ...</g>")
 
